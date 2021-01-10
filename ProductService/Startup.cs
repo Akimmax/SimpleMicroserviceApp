@@ -29,6 +29,29 @@ namespace ProductService
         {
             services.AddControllersWithViews();
 
+
+            services.AddMassTransit(x =>
+            {
+                x.AddConsumer<ProductEventConsumer>();
+                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
+                {
+                    cfg.UseHealthCheck(provider);
+                    cfg.Host(new Uri("rabbitmq://host.docker.internal"), h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+                    cfg.ReceiveEndpoint("ticketQueue", ep =>
+                    {
+                        ep.PrefetchCount = 16;
+                        //ep.UseMessageRetry(r => r.Interval(2, 100));
+                        ep.ConfigureConsumer<ProductEventConsumer>(provider);
+                    });
+                }));
+            });
+            services.AddMassTransitHostedService();
+            services.AddScoped<IProductRepository, ProductRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
