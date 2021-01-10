@@ -14,7 +14,6 @@ namespace ProductService
     public class ProductPriceChangedIntegrationEventHandler
     {
         IMongoCollection<Product> _products;
-        IMongoCollection<Supplement> _supplement;
         IProductRepository _productRepository;
         public ProductPriceChangedIntegrationEventHandler(IProductRepository productRepository)
         {
@@ -23,7 +22,6 @@ namespace ProductService
             var client = new MongoClient("mongodb://mongo:27017");
             var database = client.GetDatabase("ProductService");
             _products = database.GetCollection<Product>("Products");
-            _supplement = database.GetCollection<Supplement>("Logs");
 
         }
 
@@ -60,12 +58,6 @@ namespace ProductService
 
             _productRepository.Create(prodact);
         }
-
-        public async Task LogException(Exception ex)
-        {
-            _supplement.InsertOne(new Supplement() { SupplementName = $"Exception: {ex.Message}" });
-        }
-
 
     }
 
