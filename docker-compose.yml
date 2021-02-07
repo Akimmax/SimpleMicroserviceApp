@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  mongo:
+    container_name: newmongo
+    image: mongo
+    ports:
+      - "27018:27017"
+
+  productservice:
+    image: ${DOCKER_REGISTRY-}newproductservice
+    ports:
+      - "5109:80"
+    build:
+      context: .
+      dockerfile: ProductService/Dockerfile
+
+  parserservice:
+    image: ${DOCKER_REGISTRY-}newparserservice
+    ports:
+      - "5107:80"
+    build:
+      context: .
+      dockerfile: ParserService/Dockerfile

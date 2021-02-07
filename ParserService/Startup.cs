@@ -32,6 +32,22 @@ namespace ParserService
         {
             services.AddControllersWithViews();
 
+
+            services.AddMassTransit(x =>
+            {
+                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
+                {
+                    cfg.UseHealthCheck(provider);
+                    cfg.Host(new Uri("rabbitmq://host.docker.internal"), h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+                }));
+            });
+            services.AddMassTransitHostedService();
+
+            services.AddScoped<IEventBus, EventBus>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
